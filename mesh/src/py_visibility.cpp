@@ -70,7 +70,7 @@ npy_intp parse_pyarray(const PyArrayObject *py_arr, const array<CTYPE,3>* &cpp_a
         PyErr_SetString(PyExc_ValueError, "Array must be Nx3");
         return NULL;
     }
-    CTYPE *c_arr = (CTYPE*)PyArray_DATA(py_arr);
+    CTYPE *c_arr = (CTYPE*)PyArray_DATA((PyArrayObject*)py_arr);
     cpp_arr = reinterpret_cast<const array<CTYPE,3>*>(c_arr);
     return dims[0];
 }
@@ -175,7 +175,7 @@ visibility_compute(PyObject *self, PyObject *args, PyObject *keywds)
                 PyErr_SetString(PyExc_ValueError, "Normals should have same number of rows as vertices, and 3 columns");
                 return NULL;
             }
-            pN = (double*)PyArray_DATA(py_n);
+            pN = (double*)PyArray_DATA((PyArrayObject*)py_n);
         }
 
         double *pSensors = NULL;
@@ -185,18 +185,18 @@ visibility_compute(PyObject *self, PyObject *args, PyObject *keywds)
                 PyErr_SetString(PyExc_ValueError, "Sensors should have same number of rows as cameras, 3x3 columns");
                 return NULL;
             }
-            pSensors = (double*)PyArray_DATA(py_sensors);
+            pSensors = (double*)PyArray_DATA((PyArrayObject*)py_sensors);
         }
 
-        double *pCams = (double*)PyArray_DATA(py_cams);
+        double *pCams = (double*)PyArray_DATA((PyArrayObject*)py_cams);
 
         size_t C = cam_dims[0];
 
         npy_intp result_dims[] = {C,search->points.size()};
         PyObject *py_bin_visibility = PyArray_SimpleNew(2, result_dims, NPY_UINT32);
         PyObject *py_normal_dot_cam = PyArray_SimpleNew(2, result_dims, NPY_DOUBLE);
-        uint32_t* visibility = reinterpret_cast<uint32_t*>(PyArray_DATA(py_bin_visibility));
-        double* normal_dot_cam = reinterpret_cast<double*>(PyArray_DATA(py_normal_dot_cam));
+        uint32_t* visibility = reinterpret_cast<uint32_t*>(PyArray_DATA((PyArrayObject*)py_bin_visibility));
+        double* normal_dot_cam = reinterpret_cast<double*>(PyArray_DATA((PyArrayObject*)py_normal_dot_cam));
 
         _internal_compute(search, pN, pCams, C, use_sensors,
                           pSensors, min_dist, visibility, normal_dot_cam);
